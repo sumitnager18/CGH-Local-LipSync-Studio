@@ -1,0 +1,21 @@
+# CGH Local LipSync Studio - AMD Radeon RX 9060 XT (DirectML Windows Setup)
+# Optimized for Windows 10/11 64-bit
+
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+fastapi>=0.109.0
+uvicorn>=0.27.0
+python-multipart>=0.0.9
+numpy>=1.23.5,<2.0.0
+scipy>=1.11.0
+librosa>=0.10.0
+soundfile>=0.12.1
+opencv-python>=4.8.0
+pillow>=10.0.0
+
+# DirectML provider for ONNX Runtime (AMD RX 9060 XT compatible)
+onnxruntime-directml==1.17.3
+
+# PyTorch with DirectML support on Windows
+torch-directml>=0.2.0
+torchvision>=0.16.0

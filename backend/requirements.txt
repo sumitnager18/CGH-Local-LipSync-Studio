@@ -1,0 +1,27 @@
+# CGH Local LipSync Studio - Python 3.10 Requirements
+# 100% Local Inference on Windows 10/11 with AMD Radeon RX 9060 XT 16GB
+# No Cloud APIs or external telemetry
+
+fastapi>=0.109.0
+uvicorn>=0.27.0
+python-multipart>=0.0.9
+pydantic>=2.5.0
+requests>=2.31.0
+tqdm>=4.66.0
+
+# Numerical and Signal Processing
+numpy>=1.23.5,<2.0.0
+scipy>=1.11.0
+librosa>=0.10.0
+soundfile>=0.12.1
+
+# Computer Vision & Media
+opencv-python>=4.8.0
+pillow>=10.0.0
+
+# AMD RX 9060 XT DirectML Acceleration
+# onnxruntime-directml uses DirectX 12 on Windows for AMD GPUs
+onnxruntime-directml>=1.17.0
+
+# Optional PyTorch DirectML / CPU Fallback
+# pip install torch-directml torchvision (Windows DirectML backend for PyTorch)

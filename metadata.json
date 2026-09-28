@@ -1,0 +1,6 @@
+{
+  "name": "CGH Local LipSync Studio",
+  "description": "Local AI lip-sync application for ComputerGuruHub. Turn images and Hindi or English audio into synchronized talking videos on Windows 10/11 with AMD RX 9060 XT GPU acceleration or CPU fallback.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
