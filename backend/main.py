@@ -65,8 +65,33 @@ def health_check():
         "host": "127.0.0.1:8000",
         "offline_mode": True,
         "api_keys_required": False,
-        "hardware_target": "AMD Radeon RX 9060 XT 16GB (DirectML)",
+        "hardware_target": hardware_service.get_system_diagnostics().get("gpu", {}).get("name", "Unknown GPU"),
         "models_installed": models_info
+    }
+
+@app.get("/api/capabilities")
+def capabilities():
+    diagnostics = hardware_service.get_system_diagnostics()
+    models = hardware_service.check_installed_models(MODELS_DIR)
+    return {
+        "status": "verified",
+        "engines": [
+            {
+                "id": "wav2lip_onnx",
+                "name": "Wav2Lip ONNX",
+                "status": "available" if any(m["id"] == "wav2lip_onnx" and m["installed"] for m in models) else "unavailable",
+                "backend": diagnostics.get("backend", {}).get("active"),
+                "providers": diagnostics.get("onnxruntime", {}).get("providers", [])
+            },
+            {
+                "id": "musetalk",
+                "name": "MuseTalk",
+                "status": "available" if hardware_service.check_musetalk_supported() else "unavailable"
+            }
+        ],
+        "hardware": diagnostics.get("gpu"),
+        "onnxruntime": diagnostics.get("onnxruntime"),
+        "models": models
     }
 
 @app.get("/api/diagnostics")
