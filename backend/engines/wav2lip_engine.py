@@ -67,7 +67,7 @@ class Wav2LipEngine(LipSyncEngine):
             if "DmlExecutionProvider" in providers and self.prefer_directml:
                 return {
                     "backend": "DirectML (DirectX 12)",
-                    "device": "AMD Radeon RX 9060 XT (16GB VRAM)",
+                    "device": "ONNX Runtime DirectML device",
                     "status": "Hardware Accelerated",
                     "accelerated": True
                 }
