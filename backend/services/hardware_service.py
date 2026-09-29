@@ -28,14 +28,10 @@ class HardwareService:
         ram_info = self._detect_ram()
 
         active_backend = "CPU Fallback"
-        backend_status = "DirectML Recommended for AMD RX 9060 XT"
-
+        backend_status = "CPU inference"
         if onnx_info["directml_available"]:
-            active_backend = "AMD DirectML (DirectX 12)"
-            backend_status = "Hardware Acceleration Active via DirectML"
-        elif gpu_info["is_amd_rx_9060_xt"]:
-            active_backend = "DirectML (Configured for AMD RX 9060 XT)"
-            backend_status = "DirectML Ready - AMD Radeon RX 9060 XT 16GB"
+            active_backend = "ONNX Runtime DirectML"
+            backend_status = "Hardware acceleration verified by ONNX Runtime provider discovery"
 
         return {
             "os": {
@@ -49,9 +45,9 @@ class HardwareService:
             "backend": {
                 "active": active_backend,
                 "status": backend_status,
-                "directml_ready": onnx_info["directml_available"] or gpu_info["is_amd_rx_9060_xt"],
-                "cuda_present": False, # CUDA is deliberately not used as target is AMD
-                "notes": "AMD Radeon RX 9060 XT uses Microsoft DirectML for full Windows DirectX 12 hardware acceleration without requiring CUDA."
+                "directml_ready": onnx_info["directml_available"],
+                "cuda_present": "CUDAExecutionProvider" in onnx_info.get("providers", []),
+                "notes": "DirectML is reported ready only when ONNX Runtime actually exposes DmlExecutionProvider."
             },
             "onnxruntime": onnx_info,
             "ffmpeg": ffmpeg_info,
@@ -88,10 +84,10 @@ class HardwareService:
             "vendor": "Advanced Micro Devices (AMD)",
             "vram_gb": vram_gb,
             "is_amd": is_amd,
-            "is_amd_rx_9060_xt": True, # Target hardware target
-            "directml_supported": True,
-            "rocm_supported": False, # ROCm on Windows is not required; DirectML is the official path
-            "notes": "16GB VRAM provides high headroom for 1080p Wav2Lip batch processing."
+            "is_amd_rx_9060_xt": "rx 9060 xt" in detected_name.lower(),
+            "directml_supported": False,
+            "rocm_supported": False,
+            "notes": "GPU identity is read from the operating system; inference backend is verified independently."
         }
 
     def _detect_ffmpeg(self) -> Dict[str, Any]:
@@ -122,7 +118,7 @@ class HardwareService:
                 "installed": False,
                 "version": None,
                 "providers": ["CPUExecutionProvider (Fallback)"],
-                "directml_available": True # Supported once installed via setup_windows.bat
+                "directml_available": False
             }
 
     def _detect_disk_space(self) -> Dict[str, Any]:
@@ -137,8 +133,8 @@ class HardwareService:
     def _detect_ram(self) -> Dict[str, Any]:
         # Approximate
         return {
-            "installed_gb": 32.0,
-            "status": "Optimal (32GB+ System RAM detected)"
+            "installed_gb": round(__import__("os").sysconf("SC_PHYS_PAGES") * __import__("os").sysconf("SC_PAGE_SIZE") / (1024**3), 2) if hasattr(__import__("os"), "sysconf") else None,
+            "status": "Detected by runtime"
         }
 
     def check_installed_models(self, models_dir: Path) -> List[Dict[str, Any]]:
@@ -219,9 +215,9 @@ class HardwareService:
         return {
             "success": True,
             "engine_id": engine_id,
-            "device": "AMD Radeon RX 9060 XT (DirectML)",
+            "device": "Detected runtime / benchmark path",
             "benchmark_time_seconds": elapsed,
             "fps_speed": round(25.0 / max(elapsed, 0.05), 1),
             "output_verified": test_out.exists(),
-            "message": f"Benchmark passed in {elapsed}s. DirectML / CPU inference pipeline verified!"
+            "message": f"Benchmark pipeline completed in {elapsed}s; backend identity must be read from the inference runtime diagnostics."
         }
